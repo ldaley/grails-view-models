@@ -1,2 +1,5 @@
 target
 *.log
+.DS_Store
+*.zip
+plugin.xml
