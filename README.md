@@ -20,7 +20,7 @@ The MVVM pattern (as we are interpreting it) suggest that a specialised object s
         }
     }
 
-No instead of passing your `Product` instance to the view, you pass an instance of `ProductViewModel`.
+Now instead of passing your `Product` instance to the view, you pass an instance of `ProductViewModel`.
 
     class ProductController {
         
