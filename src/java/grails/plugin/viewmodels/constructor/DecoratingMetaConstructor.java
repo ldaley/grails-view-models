@@ -23,17 +23,16 @@ import groovy.lang.MetaMethod;
 import org.codehaus.groovy.reflection.CachedClass;
 import org.codehaus.groovy.reflection.ReflectionCache;
 
-abstract public class DecoratingMetaConstructor<T> extends MetaMethod {
+public class DecoratingMetaConstructor<T> extends MetaMethod {
 
 	final private Constructor<T> constructor;
+	final private ConstructionDecorator<T> decorator;
 	
-	public DecoratingMetaConstructor(Constructor<T> constructor) {
-		this(constructor, constructor.getParameterTypes());
-	}
+	public DecoratingMetaConstructor(Constructor<T> constructor, ConstructionDecorator<T> decorator) {
+		super(decorator.getSignature(constructor));
 
-	protected DecoratingMetaConstructor(Constructor<T> constructor, Class[] parameterTypes) {
-		super(parameterTypes);
 		this.constructor = constructor;
+		this.decorator = decorator;
 	}
 
 	public Constructor<T> getConstructor() {
@@ -57,9 +56,9 @@ abstract public class DecoratingMetaConstructor<T> extends MetaMethod {
 	}
 
 	public Object invoke(Object object, Object[] arguments) {
-		Object[] transformedArgs = transformArgs(arguments);
+		Object[] transformedArgs = decorator.transformArgs(arguments);
 		T instance = instantiate(transformedArgs);
-		decorate(instance, arguments, transformedArgs);
+		decorator.decorate(instance, arguments, transformedArgs);
 		return instance;
 	}
 	
@@ -74,11 +73,5 @@ abstract public class DecoratingMetaConstructor<T> extends MetaMethod {
 			throw new RuntimeException("Failed to invoke constructor " + constructor + " with args: " + arguments, e);
 		}
 	}
-	
-	protected Object[] transformArgs(Object[] args) {
-		return args;
-	}
-	
-	abstract protected void decorate(T instance, Object[] givenArgs, Object[] transformedArgs);
-	
+
 }

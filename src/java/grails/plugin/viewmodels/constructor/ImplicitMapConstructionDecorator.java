@@ -15,39 +15,32 @@
  */
 package grails.plugin.viewmodels.constructor;
 
-import groovy.lang.GroovySystem;
 import groovy.lang.GroovyObject;
 import groovy.lang.MetaClassImpl;
 import java.lang.reflect.Constructor;
-
 import java.util.Map;
 
-import org.springframework.context.ApplicationContext;
-
-public class AutowiringImplicitMapConstructor<T extends GroovyObject> extends AutowiringConstructor<T> {
+public class ImplicitMapConstructionDecorator<T extends GroovyObject> extends ConstructionDecoratorSupport<T> {
 
 	static private final Object[] NO_ARGS = new Object[0];
 	static private final Class[] SINGLE_MAP_ARG = { Map.class };
 	
-	public AutowiringImplicitMapConstructor(Constructor<T> constructor, ApplicationContext applicationContext) {
-		super(constructor, applicationContext, SINGLE_MAP_ARG);
-		
-		if (constructor.getParameterTypes().length > 0) {
-			throw new IllegalArgumentException("constructor must be a no arg constructor, it is " + constructor);
-		}
-	}
-	
-	protected Object[] transformArgs(Object[] args) {
+	public Object[] transformArgs(Object[] args) {
 		return NO_ARGS;
 	}
 	
-	protected void decorate(T instance, Object[] givenArgs, Object[] transformedArgs) {
+	public void decorate(T instance, Object[] givenArgs, Object[] transformedArgs) {
 		MetaClassImpl metaClass = (MetaClassImpl)instance.getMetaClass();
-		
 		Map properties = (Map)givenArgs[0];
-		
 		metaClass.setProperties(instance, properties);
-		super.decorate(instance, givenArgs, transformedArgs);
+	}
+	
+	public Class<?>[] getSignature(Constructor<T> constructor) {
+		return SINGLE_MAP_ARG;
+	}
+	
+	ConstructionDecoratorChain<T> chainWith(ConstructionDecorator<T> decorator) {
+		return new ConstructionDecoratorChain(this, decorator);
 	}
 	
 }

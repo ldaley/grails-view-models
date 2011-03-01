@@ -58,8 +58,9 @@ class ViewModelsGrailsPlugin {
 	}
 	
 	def doWithDynamicMethods = { context ->
+		def autowiringDecorator = new AutowiringConstructionDecorator(context)
 		for (viewModelClass in application.viewModelClasses) {
-			enhanceViewModelClass(viewModelClass, context)
+			enhanceViewModelClass(viewModelClass, autowiringDecorator)
 		}
 	}
 
@@ -69,22 +70,25 @@ class ViewModelsGrailsPlugin {
 
 	private static SINGLE_OBJ_ARRAY_SIGNATURE = [Object[]] as Class[]
 	
-	private static enhanceViewModelClass(viewModelClass, applicationContext) {
+	private static enhanceViewModelClass(viewModelClass, autowiringDecorator) {
 		def constructors = viewModelClass.clazz.constructors
 		
 		for (constructor in constructors) {
-			viewModelClass.metaClass.registerInstanceMethod(new AutowiringConstructor(constructor, applicationContext))
+			viewModelClass.metaClass.registerInstanceMethod(new DecoratingMetaConstructor(constructor, autowiringDecorator))
 			
 			if (constructors.size() == 1 && constructor.parameterTypes.size() == 0) {
-				viewModelClass.metaClass.registerInstanceMethod(new AutowiringImplicitMapConstructor(constructor, applicationContext))
+				viewModelClass.metaClass.registerInstanceMethod(new DecoratingImplicitMapMetaConstructor(constructor, autowiringDecorator))
 			}
 		}
 	}
 	
 	static private handleChange(application, event, type) {
 		if (application.isArtefactOfType(type, event.source)) {
+			def autowiringDecorator = new AutowiringConstructionDecorator(event.ctx)
+			
 			def oldClass = application.getArtefact(type, event.source.name)
 			application.addArtefact(type, event.source)
+			enhanceViewModelClass(event.source, autowiringDecorator)
 			
 
 			// Reload subclasses
@@ -92,6 +96,7 @@ class ViewModelsGrailsPlugin {
 				if (it.clazz != event.source && oldClass.clazz.isAssignableFrom(it.clazz)) {
 					def newClass = application.classLoader.reloadClass(it.clazz.name)
 					application.addArtefact(type, newClass)
+					enhanceViewModelClass(newClass, autowiringDecorator)
 				}
 			}
 		}

@@ -15,28 +15,20 @@
  */
 package grails.plugin.viewmodels.constructor;
 
-import java.lang.reflect.Constructor;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 
-public class AutowiringConstructor<T> extends DecoratingMetaConstructor<T> {
+public class Autowirer {
 
 	final public ApplicationContext applicationContext;
 	
-	public AutowiringConstructor(Constructor<T> constructor, ApplicationContext applicationContext) {
-		this(constructor, applicationContext, constructor.getParameterTypes());
-	}
-
-	protected AutowiringConstructor(Constructor<T> constructor, ApplicationContext applicationContext, Class[] parameterTypes) {
-		super(constructor, parameterTypes);
+	public Autowirer(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
 	}
-	
-	protected void decorate(T instance, Object[] givenArgs, Object[] transformedArgs) {
+
+	public void autowire(Object instance) {
 		AutowireCapableBeanFactory beanFactory = applicationContext.getAutowireCapableBeanFactory();
 		beanFactory.autowireBeanProperties(instance, AutowireCapableBeanFactory.AUTOWIRE_BY_NAME, false);
 		beanFactory.initializeBean(instance, instance.getClass().getName());
