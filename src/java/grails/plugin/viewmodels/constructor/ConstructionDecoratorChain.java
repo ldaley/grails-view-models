@@ -42,5 +42,13 @@ public class ConstructionDecoratorChain<T> implements ConstructionDecorator<T> {
 	public Class<?>[] getSignature(Constructor<T> constructor) {
 		return decorators[0].getSignature(constructor);
 	}
+
+	public Constructor<T> transformConstructor(Constructor<T> constructor) {
+		Constructor<T> transformedConstructor = constructor;
+		for (ConstructionDecorator<T> decorator : decorators) {
+			transformedConstructor = decorator.transformConstructor(transformedConstructor);
+		}
+		return transformedConstructor;
+	}
 	
 }

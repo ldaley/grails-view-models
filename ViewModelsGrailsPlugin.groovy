@@ -40,7 +40,10 @@ class ViewModelsGrailsPlugin {
 		"file:../../plugins/*/viewModels/**/*ViewModel.groovy",
 	]
 
-	def pluginExcludes = []
+	def pluginExcludes = [
+		"grails-app/**/*",
+		"web-app/**/*"
+	]
 	
 	def doWithSpring = {
 		for (viewModelClass in application.viewModelClasses) {
@@ -58,7 +61,7 @@ class ViewModelsGrailsPlugin {
 	}
 	
 	def doWithDynamicMethods = { context ->
-		def autowiringDecorator = new AutowiringConstructionDecorator(context)
+		def autowiringDecorator = createConstructionDecorator(application)
 		for (viewModelClass in application.viewModelClasses) {
 			enhanceViewModelClass(viewModelClass, autowiringDecorator)
 		}
@@ -84,22 +87,24 @@ class ViewModelsGrailsPlugin {
 	
 	static private handleChange(application, event, type) {
 		if (application.isArtefactOfType(type, event.source)) {
-			def autowiringDecorator = new AutowiringConstructionDecorator(event.ctx)
+			def autowiringDecorator = createConstructionDecorator(application)
 			
 			def oldClass = application.getArtefact(type, event.source.name)
-			application.addArtefact(type, event.source)
-			enhanceViewModelClass(event.source, autowiringDecorator)
+			enhanceViewModelClass(application.addArtefact(type, event.source), autowiringDecorator)
 			
 
 			// Reload subclasses
 			application.getArtefacts(type).each {
 				if (it.clazz != event.source && oldClass.clazz.isAssignableFrom(it.clazz)) {
 					def newClass = application.classLoader.reloadClass(it.clazz.name)
-					application.addArtefact(type, newClass)
-					enhanceViewModelClass(newClass, autowiringDecorator)
+					enhanceViewModelClass(application.addArtefact(type, newClass), autowiringDecorator)
 				}
 			}
 		}
+	}
+	
+	static private createConstructionDecorator(grailsApplication) {
+		new ReloadCapableConstructionDecorator(grailsApplication.classLoader).chainWith(new AutowiringConstructionDecorator(grailsApplication.mainContext))
 	}
 
 }

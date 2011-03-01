@@ -64,7 +64,7 @@ public class DecoratingMetaConstructor<T> extends MetaMethod {
 	
 	protected T instantiate(Object[] arguments) {
 		try {
-			return constructor.newInstance(arguments);
+			return decorator.transformConstructor(constructor).newInstance(arguments);
 		} catch (InstantiationException e) {
 			throw new RuntimeException("Failed to invoke constructor " + constructor + " with args: " + arguments, e);
 		} catch (IllegalAccessException e) {

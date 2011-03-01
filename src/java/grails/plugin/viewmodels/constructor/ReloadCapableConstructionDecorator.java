@@ -17,22 +17,29 @@ package grails.plugin.viewmodels.constructor;
 
 import java.lang.reflect.Constructor;
 
-abstract public class ConstructionDecoratorSupport<T> implements ConstructionDecorator<T> {
-
-	public Object[] transformArgs(Object[] args) {
-		return args;
+class ReloadCapableConstructionDecorator<T> extends ConstructionDecoratorSupport<T> {
+	
+	private final ClassLoader classLoader;
+	
+	public ReloadCapableConstructionDecorator(ClassLoader classLoader) {
+		this.classLoader = classLoader;
 	}
 	
-	public void decorate(T instance, Object[] originalArgs, Object[] transformedArgs) {
-		
-	}
-	
-	public Class<?>[] getSignature(Constructor<T> constructor) {
-		return constructor.getParameterTypes();
-	}
-
 	public Constructor<T> transformConstructor(Constructor<T> constructor) {
-		return constructor;
+		try {
+			Class<T> originalClassVersion = constructor.getDeclaringClass();
+			Class<T> newestClassVersion = (Class<T>)classLoader.loadClass(originalClassVersion.getName());
+			
+			return newestClassVersion.getConstructor(constructor.getParameterTypes());
+		} catch (NoSuchMethodException e) {
+			return constructor;
+		} catch (ClassNotFoundException e) {
+			return constructor;
+		}
+	}
+	
+	ConstructionDecoratorChain<T> chainWith(ConstructionDecorator<T> decorator) {
+		return new ConstructionDecoratorChain(decorator, this);
 	}
 	
 }

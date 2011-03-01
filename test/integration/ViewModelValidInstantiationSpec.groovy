@@ -25,7 +25,7 @@ class ViewModelValidInstantiationSpec extends IntegrationSpec {
 		
 		then:
 		vm != null
-		vm instanceof NoConstructorViewModel
+		vm.class.name == NoConstructorViewModel.name
 	}
 	
 	def "instantiated view model is autowired"() {

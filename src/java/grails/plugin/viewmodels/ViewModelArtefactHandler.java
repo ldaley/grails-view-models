@@ -26,4 +26,8 @@ public class ViewModelArtefactHandler extends ArtefactHandlerAdapter {
 		super(TYPE, ViewModelClass.class, DefaultViewModelClass.class, SUFFIX);
 	}
 
+	public String getPluginName() {
+		return "view-models";
+	}
+
 }
