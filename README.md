@@ -38,7 +38,7 @@ All view model class MUST be in the `grails-app/viewModels` directory and MUST e
 
 ### Autowiring
 
-This plugin uses Groovy's MOP to augment existing constructors to provide dependency injection autowiring, and general Spring initialisation (e.g. calling `afterPropertiesSet()` on view models implementing [InitializingBean](http://static.springsource.org/spring/docs/2.5.x/api/org/springframework/beans/factory/InitializingBean.html)). This includes supporting any custom constructors, not just no-arg constructors like Grails domain classes.
+This plugin uses Groovy's MOP to augment existing constructors to provide dependency injection autowiring, and general Spring initialisation (e.g. calling `afterPropertiesSet()` on view models implementing [InitializingBean](http://static.springsource.org/spring/docs/2.5.x/api/org/springframework/beans/factory/InitializingBean.html)) . This includes supporting any custom constructors, not just no-arg constructors like Grails domain classes.
 
     class BookViewModel {
         def bookService
@@ -66,7 +66,7 @@ Autowiring occurs *after* the constructor has completed.
 
 ### Initialisation
 
-After autowiring has occurred, the usual initialisation methods will be called on the view model instance via the [initializeBean](http://static.springsource.org/spring/docs/current/api/org/springframework/beans/factory/config/AutowireCapableBeanFactory.html#initializeBean(java.lang.Object, java.lang.String)) method.
+After autowiring has occurred, the usual initialisation methods will be called on the view model instance via the [initializeBean](http://static.springsource.org/spring/docs/current/api/org/springframework/beans/factory/config/AutowireCapableBeanFactory.html#initializeBean\(java.lang.Object, java.lang.String\)) method.
 
 ### Reloading
 
