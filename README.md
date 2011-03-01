@@ -71,4 +71,8 @@ After autowiring has occurred, the usual initialisation methods will be called o
 ### Reloading
 
 View model classes can be hot reloaded during development time, like services and controllers.
+
+## Licensing
+
+The plugin is released under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.html "Apache License, Version 2.0 - The Apache Software Foundation").
     
